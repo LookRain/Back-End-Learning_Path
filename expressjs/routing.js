@@ -2,6 +2,9 @@ let express = require('express');
 
 let app = express();
 
+app.use(express.static('public'));
+
+
 app.get('/', (req, res) => {
 	console.log('a GET request');
 	res.send('a GET request');
