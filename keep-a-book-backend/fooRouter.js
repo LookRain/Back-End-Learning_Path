@@ -1,5 +1,5 @@
-var express = require('express')
-var fooRouter = express.Router()
+let express = require('express')
+let fooRouter = express.Router()
 
 fooRouter.get('/', function (req, res) {
   res.send('GET route on things.')
