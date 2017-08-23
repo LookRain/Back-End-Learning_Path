@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.15.4"
+    "express": "^4.15.4",
+    "mongoose": "^4.11.7",
+    "pug": "^2.0.0-rc.3"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
