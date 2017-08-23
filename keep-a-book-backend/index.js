@@ -1,10 +1,12 @@
-let express = require('express')
-let app = express()
-let baz = require('./foo')
+var express = require('Express')
+var app = express()
 
+var fooRouter = require('./fooRouter.js')
 
 app.get('/', (req, res) => {
-  res.send('<b>Hello World!</b>' + baz.testFunction())
+  res.send('root dir')
 })
 
-app.listen(3000)
+app.use('/foo', fooRouter)
+
+app.listen(4000)
