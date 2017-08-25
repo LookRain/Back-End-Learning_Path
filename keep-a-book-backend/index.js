@@ -1,12 +1,15 @@
 let express = require('Express')
 let app = express()
+var bodyParser = require('body-parser')
+var multer = require('multer')
+var upload = multer()
 
 // let fooRouter = require('./fooRouter.js')
 // let dynamicRouter = require('./dynamicRouter.js')
 var mongoose = require('mongoose')
 app.set('view engine', 'pug')
 app.set('views', './views')
-var path = require('path')
+// var path = require('path')
 mongoose.connect('mongodb://localhost/my_db', {
   useMongoClient: true
 })
@@ -16,10 +19,17 @@ var personSchema = mongoose.Schema({
   nationality: String
 })
 var Person = mongoose.model('Person', personSchema)
+
+// for parsing application/json
+app.use(bodyParser.json())
+
+// for parsing application/xwww-
+app.use(bodyParser.urlencoded({ extended: true }))
+// form - urlencoded
 app.get('/person', function (req, res) {
   console.log('get')
-  // res.render('person')
-  res.sendFile(path.join(__dirname, '/form.html'))
+  res.render('person')
+  // res.sendFile(path.join(__dirname, '/form.html'))
 })
 app.get('/m', function (req, res) {
   res.render('show_message')
@@ -28,16 +38,20 @@ app.get('/m', function (req, res) {
 app.post('/person', function (req, res) {
   console.log('post')
   var personInfo = req.body // Get the parsed information
+  console.log(req.body)
 
   if (!personInfo.name || !personInfo.age || !personInfo.nationality) {
+    console.log('missing info')
     res.render('show_message', {
       message: 'Sorry, you provided worng info', type: 'error'})
   } else {
+    console.log('else')
     var newPerson = new Person({
       name: personInfo.name,
       age: personInfo.age,
       nationality: personInfo.nationality
     })
+    console.log(newPerson)
 
     newPerson.save(function (err, Person) {
       if (err) {
@@ -59,4 +73,4 @@ app.post('/person', function (req, res) {
 
 // app.use('/user', dynamicRouter)
 
-app.listen(4000)
+app.listen(5000)
