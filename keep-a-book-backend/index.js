@@ -58,8 +58,9 @@ app.post('/person', function (req, res) {
         console.log(err)
         res.render('show_message', {message: 'Database error', type: 'error'})
       } else {
-        res.render('show_message', {
-          message: 'New person added', type: 'success', person: personInfo})
+        // res.render('show_message', {
+        //   message: 'New person added', type: 'success', person: personInfo})
+        res.send(personInfo)
       }
     })
   }
