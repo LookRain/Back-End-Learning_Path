@@ -34,7 +34,14 @@ app.get('/person', function (req, res) {
 app.get('/m', function (req, res) {
   res.render('show_message')
 })
-
+// app.get('/show-all', (req, res) => {
+//   res.send(Person.find({}))
+// })
+app.get('/usersList', function (req, res) {
+  Person.find({}, (err, ppl) => {
+    res.send(ppl)
+  })
+})
 app.post('/person', function (req, res) {
   console.log('post')
   var personInfo = req.body // Get the parsed information
