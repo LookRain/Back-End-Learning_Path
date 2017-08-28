@@ -19,6 +19,28 @@ var personSchema = mongoose.Schema({
   nationality: String
 })
 var Person = mongoose.model('Person', personSchema)
+/*
+transaction: {
+  payer: 'A',
+  payerID: 1,
+  amount: 30,
+  receiver: [1,2,3]
+}
+
+transaction: {
+  payer: 'B',
+  payerID: 2
+  amount: -30,
+  receiver: [4]
+}
+*/
+let transactionSchema = mongoose.Schema({
+  id: Number,
+  payer: String,
+  amount: Number,
+  receiver: [Number] // Array of IDs
+})
+let Transaction = mongoose.model('Transaction', transactionSchema)
 
 // for parsing application/json
 app.use(bodyParser.json())
