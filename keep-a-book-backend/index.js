@@ -95,6 +95,12 @@ app.post('/person', function (req, res) {
   }
 })
 
+app.post('/new-transaction', (req, res) => {
+  let info = req.body
+  if (!info.id || !info.payer || !info.amount || !info.receiver) {
+    res.status(400).send('incomplete input')
+  }
+})
 // app.get('/', (req, res) => {
 //   res.send('root dir')
 // })
