@@ -100,6 +100,24 @@ app.post('/new-transaction', (req, res) => {
   if (!info.id || !info.payer || !info.amount || !info.receiver) {
     res.status(400).send('incomplete input')
   }
+
+  console.log('saving to db')
+  let newTransaction = new Transaction({
+    id: info.id,
+    payer: info.payer,
+    amount: info.amount,
+    receiver: info.receiver
+  })
+  console.log(newTransaction)
+
+  newTransaction.save((err, Transaction) => {
+    if (err) {
+      console.log(err)
+      res.status(500).send(err)
+    } else {
+      res.send(info)
+    }
+  })
 })
 // app.get('/', (req, res) => {
 //   res.send('root dir')
