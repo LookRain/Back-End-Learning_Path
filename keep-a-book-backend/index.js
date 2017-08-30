@@ -67,7 +67,7 @@ app.get('/usersList', function (req, res) {
 app.post('/person', function (req, res) {
   console.log('post')
   var personInfo = req.body // Get the parsed information
-  console.log(req.body)
+  console.log(personInfo)
 
   if (!personInfo.name || !personInfo.age || !personInfo.nationality) {
     console.log('missing info')
@@ -97,16 +97,18 @@ app.post('/person', function (req, res) {
 
 app.post('/new-transaction', (req, res) => {
   let info = req.body
+  console.log(info)
   if (!info.id || !info.payer || !info.amount || !info.receiver) {
-    res.status(400).send('incomplete input')
+    res.status(400).send('incomplete')
+    return
   }
 
   console.log('saving to db')
   let newTransaction = new Transaction({
     id: info.id,
     payer: info.payer,
-    amount: info.amount,
-    receiver: info.receiver
+    amount: JSON.parse(info.amount),
+    receiver: JSON.parse(info.receiver)
   })
   console.log(newTransaction)
 
@@ -117,6 +119,15 @@ app.post('/new-transaction', (req, res) => {
     } else {
       res.send(info)
     }
+  })
+})
+
+app.get('/all-transaction', function (req, res) {
+  Transaction.find({}, (err, ppl) => {
+    if (err) {
+      res.status(500).send(err)
+    }
+    res.send(ppl)
   })
 })
 // app.get('/', (req, res) => {

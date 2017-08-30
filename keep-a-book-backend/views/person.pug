@@ -2,17 +2,21 @@ html
 head
    title Person
    body
-      form(action = "/person", method = "POST")
+      form(action = "/new-transaction", method = "POST")
             div
-                  label(for = "name") Name: 
-                  input(name = "name")
+                  label(for = "id") id: 
+                  input(name = "id")
             br
             div
-                  label(for = "age") Age: 
-                  input(name = "age")
+                  label(for = "payer") payer: 
+                  input(name = "payer")
             br
             div
-                  label(for = "nationality") Nationality: 
-                  input(name = "nationality")
+                  label(for = "amount") amount: 
+                  input(name = "amount")
+            br
+            div
+                  label(for = "receiver") receiver: 
+                  input(name = "receiver")
             br
             button(type = "submit") Create new person
