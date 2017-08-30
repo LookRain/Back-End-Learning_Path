@@ -35,10 +35,10 @@ transaction: {
 }
 */
 let transactionSchema = mongoose.Schema({
-  id: Number,
+  id: String,
   payer: String,
   amount: Number,
-  receiver: [Number] // Array of IDs
+  receiver: [String] // Array of IDs
 })
 let Transaction = mongoose.model('Transaction', transactionSchema)
 
@@ -107,8 +107,8 @@ app.post('/new-transaction', (req, res) => {
   let newTransaction = new Transaction({
     id: info.id,
     payer: info.payer,
-    amount: JSON.parse(info.amount),
-    receiver: JSON.parse(info.receiver)
+    amount: info.amount,
+    receiver: info.receiver
   })
   console.log(newTransaction)
 
