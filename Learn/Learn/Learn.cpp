@@ -2,8 +2,11 @@
 //
 
 #include "stdafx.h"
+#include "LexToken.h"
 #include <string>
 #include <iostream>
+
+
 using namespace std;
 
 void modifyInt(int a);
@@ -11,6 +14,7 @@ void modifyReal(int *a);
 
 int main()
 {
+
 
 	int test = 1;
 	cout << test << endl;
@@ -23,6 +27,11 @@ int main()
 	cout << "after modifying" << endl;
 	modifyReal(&test2);
 	cout << test2 << endl;
+
+
+	LexToken myToken("while");
+	myToken.printToken();
+
 
 	return 0;
 }
