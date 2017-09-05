@@ -2,10 +2,10 @@
 //
 
 #include "stdafx.h"
-#include "LexToken.h"
+#include "Token.h"
 #include <string>
 #include <iostream>
-
+#include "Interpreter.h"
 
 using namespace std;
 
@@ -29,10 +29,16 @@ int main()
 	cout << test2 << endl;
 
 
-	LexToken myToken("while");
-	myToken.printToken();
+	Token myToken("keyword", "while");
+	myToken.print();
 
+	//string testStr = "hae11ha th22is is 33a te4st!  d";
+	//cout << endl << isdigit(testStr[5]);
 
+	Interpreter itp = Interpreter("hae11ha th22is is 33a te4st! \n d");
+	itp.lex();
+
+	
 	return 0;
 }
 
