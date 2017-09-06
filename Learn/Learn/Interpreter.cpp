@@ -11,7 +11,7 @@ using namespace std;
 const string LETTER = "LETTER";
 const string DIGIT = "DIGIT";
 const string PLUS = "PLUS";
-const string EQUAL = "EQUAL";
+
 
 const string EOL = "EOL";
 const string NEWLINE = "NEWLINE";
@@ -25,11 +25,24 @@ const string PROCEDURE = "procedure";
 
 const string EMPTY_TOKEN = "EMPTY TOKEN";
 
+const string EQUAL_STRING = "=";
+const string PLUS_STRING = "+";
+const string MINUS_STRING = "-";
+const string MUL_STRING = "*";
+const string SPACE_STRING = " ";
+const string EMPTY_STRING = "";
+const string LINE_FEED_STRING = "\n";
+const string TAB_STRING = "\t";
+const string SEMI_COLON_STRING = ";";
 const int MAX_LENGTH = 1024;
 
 const char NONE = '\0';
 const char LINE_FEED = '\n';
+const char TAB = '\t';
 const char SPACE = ' ';
+const char SEMI_COLON = ';';
+const char EQUAL = '=';
+
 const string BLOCK_START = "{";
 const string BLOCK_END = "}";
 //const string PLUS, MINUS, MULTIPLY, DIVIDE, EQUAL = "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQUAL";
@@ -56,6 +69,7 @@ Token Interpreter :: lex()
 	string currentUnknownVar = "";
 
 	string currentAssignVar = "";
+	bool assignExpectOp = false;
 	// 3 bool: {has var, has equal sign, has exp}
 	bool assignVerify[3] = { false, false, false };
 
@@ -63,9 +77,9 @@ Token Interpreter :: lex()
 	bool procVerify[4] = { false, false, false, false };
 	string currentProcName = "";
 
-
 	while (currentChar != NONE)
 	{
+		//cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
 		// check if invalid var name
 		if (bufferPosition != 0 && (!isalpha(buffer[0])))
 		{
@@ -75,6 +89,13 @@ Token Interpreter :: lex()
 				return null;
 			}
 		}
+		if (bufferPosition != 0 && (buffer == SPACE_STRING || buffer == EMPTY_STRING || buffer == TAB_STRING)) {
+			
+			cout << "space/newline/tab encountered and ignored" << endl;
+			memset(buffer, 0, sizeof(buffer));
+			bufferPosition = 0;
+			continue;
+		}
 
 		/*
 		 * process parsed words here
@@ -82,6 +103,16 @@ Token Interpreter :: lex()
 
 		if (buffer[bufferPosition-1] == NONE) // if the current buffer array is a string
 		{
+			//cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
+		
+			// ignore space/tab
+			if (buffer == EMPTY_TOKEN)
+			{
+				cout << "space string";
+				memset(buffer, 0, sizeof(buffer));
+				bufferPosition = 0;
+				continue;
+			}
 			// keyword identification
 			// case 1: procedure
 			if (buffer == PROCEDURE)
@@ -121,6 +152,8 @@ Token Interpreter :: lex()
 				}
 				continue;
 			}
+
+			// if not inside an assignment, expect assignment variable
 			if (!assignVerify[0])
 			{
 				/*cout << buffer << ", pointer: " << bufferPosition << endl;*/
@@ -130,21 +163,85 @@ Token Interpreter :: lex()
 				memset(buffer, 0, sizeof(buffer));
 				bufferPosition = 0;
 				continue;
-			} else
-			{
-				cout << "invalid assignment syntax" << endl;
-				return null;
+			} 
+			// if already in an assignment
+			else {
+				// if haven't encountered = sign, and the buffer is not equal sign, error!
+				if (!assignVerify[1])
+				{
+					if (buffer != EQUAL_STRING)
+					{
+						cout << "Assignmetn statement variable must be followed by = but encountered " << buffer << endl;
+						return null;
+					}
+					else
+					{
+						cout << "assignment symbol encountered" << endl;
+						assignVerify[1] = true;
+						memset(buffer, 0, sizeof(buffer));
+						bufferPosition = 0;
+						continue;
+					}
+				} 
+				// if '=' sign already encountered, expect new var or int or op
+				else
+				{
+					//cout << "exp factor is: " << buffer << ". " << endl;
+					if (assignExpectOp)
+					{
+						if (buffer == SEMI_COLON_STRING)
+						{
+							cout << "assignment cannot end with operator!" << endl;
+							return null;
+						}
+						if (buffer == PLUS_STRING)
+						{
+							cout << "operator is: " << PLUS_STRING << ". " << endl;
+							assignExpectOp = false;
+						}
+						if (buffer == MINUS_STRING)
+						{
+							cout << "operator is: " << MINUS_STRING << ". " << endl;
+							assignExpectOp = false;
+						}
+						if (buffer == MUL_STRING)
+						{
+							cout << "operator is: " << MUL_STRING << ". " << endl;
+							assignExpectOp = false;
+						}
+					} else
+					{
+						if (buffer == SEMI_COLON_STRING)
+						{
+							assignVerify[2] = true;
+							cout << "assignment if var " << currentAssignVar <<" finished!" << endl;
+							memset(buffer, 0, sizeof(buffer));
+							bufferPosition = 0;
+							continue;
+						}
+						cout << "exp factor is: " << buffer << ". " << endl;
+						assignExpectOp = true;
+					}
+					memset(buffer, 0, sizeof(buffer));
+					bufferPosition = 0;
+					continue;
+				}
+				
+				
 			}
+			
 			
 			
 			
 		}
 
-		if (currentChar == SPACE || currentChar == LINE_FEED)
+		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB || currentChar == SEMI_COLON) // TODO: if semi colon is seen, do not advance!!
 		{
+			//cout << "buffer is: " << buffer << " |||| " << endl;
 			buffer[bufferPosition] = '\0';
 			
 			bufferPosition++;
+
 
 		} else
 		{
@@ -155,7 +252,9 @@ Token Interpreter :: lex()
 		
 		//cout << "buffer is: "<< buffer << " |||| " <<endl;
 		advance();
-	}
+	} // end while loop
+
+
 	for (int i = 0; i < 4; i ++)
 	{
 		cout << procVerify[i] << endl;

@@ -18,6 +18,8 @@ int main()
 	/*std::ifstream file("sample.txt");
 	std::string str;*/
 
+
+
 	ifstream ifs("sample.txt");
 	string content((istreambuf_iterator<char>(ifs)),
 		(istreambuf_iterator<char>()));
