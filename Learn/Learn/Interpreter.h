@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 #include "Token.h"
 
 
@@ -12,6 +13,8 @@ private:
 	Token currentToken;
 	char currentChar;
 
+	char buffer[50];
+	int bufferPosition;
 	void advance();
 
 public:
