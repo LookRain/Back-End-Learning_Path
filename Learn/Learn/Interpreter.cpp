@@ -72,6 +72,10 @@ Token Interpreter :: lex()
 	bool assignExpectOp = false;
 	// 3 bool: {has var, has equal sign, has exp}
 	bool assignVerify[3] = { false, false, false };
+	string leftFactor = "";
+	string rightFactor = "";
+	string op = "";
+	int factorCount = 0;
 
 	// 3 bool: {proc keyword found, proc name defined, starting brace found, ending brace found}
 	bool procVerify[4] = { false, false, false, false };
@@ -191,35 +195,38 @@ Token Interpreter :: lex()
 					{
 						if (buffer == SEMI_COLON_STRING)
 						{
-							cout << "assignment cannot end with operator!" << endl;
-							return null;
+							assignVerify[2] = true;
+							cout << "assignment of var " << currentAssignVar << " finished!" << endl;
+							cout << "final assignment is: " << leftFactor << " " << op << " " << rightFactor << endl;
+							memset(buffer, 0, sizeof(buffer));
+							bufferPosition = 0;
+							continue;
+
+							
 						}
 						if (buffer == PLUS_STRING)
 						{
 							cout << "operator is: " << PLUS_STRING << ". " << endl;
+							op = "PLUS";
 							assignExpectOp = false;
 						}
-						if (buffer == MINUS_STRING)
-						{
-							cout << "operator is: " << MINUS_STRING << ". " << endl;
-							assignExpectOp = false;
-						}
-						if (buffer == MUL_STRING)
-						{
-							cout << "operator is: " << MUL_STRING << ". " << endl;
-							assignExpectOp = false;
-						}
+
 					} else
 					{
 						if (buffer == SEMI_COLON_STRING)
 						{
-							assignVerify[2] = true;
-							cout << "assignment if var " << currentAssignVar <<" finished!" << endl;
-							memset(buffer, 0, sizeof(buffer));
-							bufferPosition = 0;
-							continue;
+							cout << "assignment cannot end with operator!" << endl;
+							return null;
 						}
 						cout << "exp factor is: " << buffer << ". " << endl;
+						if (factorCount == 0)
+						{
+							leftFactor = buffer;
+							factorCount++;
+						} else
+						{
+							rightFactor = buffer;
+						}
 						assignExpectOp = true;
 					}
 					memset(buffer, 0, sizeof(buffer));
@@ -235,23 +242,49 @@ Token Interpreter :: lex()
 			
 		}
 
-		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB || currentChar == SEMI_COLON) // TODO: if semi colon is seen, do not advance!!
+		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB) // TODO: if semi colon is seen, do not advance!!
 		{
 			//cout << "buffer is: " << buffer << " |||| " << endl;
+			//cout << "space! tab!!!!" << endl;
 			buffer[bufferPosition] = '\0';
 			
 			bufferPosition++;
+			advance();
+			continue;
 
+		} else if (currentChar == SEMI_COLON)
+		{
+			cout << "curr is:" << currentChar << "|||| position is:" << position << endl;
+			if (strlen(buffer) == 0)
+			{
+				cout << "buffer empty" << endl;
+				buffer[bufferPosition] = currentChar;
+				bufferPosition++;
+				advance();
+				continue;
+			}
 
+			buffer[bufferPosition] = '\0';
+
+			bufferPosition++;
+			//advance();
+
+			continue;
+
+			
+			
+			continue;
 		} else
 		{
 			buffer[bufferPosition] = currentChar;
 			bufferPosition++;
+			advance();
+			continue;
 		}
 
 		
 		//cout << "buffer is: "<< buffer << " |||| " <<endl;
-		advance();
+		//advance();
 	} // end while loop
 
 

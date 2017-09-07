@@ -1,5 +1,3 @@
-procedure abc {     
-
-	a = b + cad;
+procedure abc {  
+a = 7 + d;
 }
-	a
