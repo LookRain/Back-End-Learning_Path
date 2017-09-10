@@ -3,10 +3,11 @@
 
 #include "stdafx.h"
 #include "Token.h"
+#include "VarToken.h"
 #include <string>
 #include <fstream>
 #include <iostream>
-#include "Interpreter.h"
+#include "Parser.h"
 
 using namespace std;
 
@@ -15,15 +16,18 @@ using namespace std;
 
 int main()
 {
+	/*Token v = VarToken("xvar");
+	cout << v.getType() << endl;*/
+
 	/*std::ifstream file("sample.txt");
 	std::string str;*/
 
-
+/*
 
 	ifstream ifs("sample.txt");
 	string content((istreambuf_iterator<char>(ifs)),
 		(istreambuf_iterator<char>()));
-	cout << content << endl;
+	cout << content << endl;*/
 
 
 	
@@ -48,7 +52,7 @@ int main()
 	//string testStr = "hae11ha th22is is 33a te4st!  d";
 	//cout << endl << isdigit(testStr[5]);
 
-	Interpreter itp = Interpreter(content);
+	Parser itp = Parser("sample.txt");
 	itp.lex();
 
 	

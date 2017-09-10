@@ -4,9 +4,10 @@
 #include "Token.h"
 
 
-class Interpreter
+class Parser
 {
 private:
+	string filename;
 	string text;
 	int line;
 	int position;
@@ -18,6 +19,6 @@ private:
 	void advance();
 
 public:
-	Interpreter(string text);
+	Parser(string filename);
 	Token lex();
 };

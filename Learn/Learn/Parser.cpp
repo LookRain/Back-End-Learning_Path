@@ -1,10 +1,11 @@
 #include "stdafx.h"
-#include "Interpreter.h"
+#include "Parser.h"
 #include "Token.h"
 
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 // token types:
@@ -48,21 +49,27 @@ const string BLOCK_END = "}";
 //const string PLUS, MINUS, MULTIPLY, DIVIDE, EQUAL = "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQUAL";
 
 
-Interpreter :: Interpreter(string text) : text(text), currentToken(EMPTY_TOKEN, EMPTY_TOKEN)
+Parser::Parser(string filename) : filename(filename), currentToken(EMPTY_TOKEN)
 {
+	ifstream ifs(filename);
+	string content((istreambuf_iterator<char>(ifs)),
+		(istreambuf_iterator<char>()));
+
+	text = content;
+	cout << text << endl;
 	line = 1;
 	//text = text;
 	position = 0;
-	currentChar = text[position]; 
-	currentToken = Token(EMPTY_TOKEN, EMPTY_TOKEN);
-	
+	currentChar = text[position];
+	currentToken = Token(EMPTY_TOKEN);
+
 	bufferPosition = 0;
 }
 
 
-Token Interpreter :: lex()
+Token Parser::lex()
 {
-	Token null = Token("null", "null");
+	Token null = Token("null");
 	int parenNum = 0; // ( )
 	int braceNum = 0; // { }
 
@@ -94,7 +101,7 @@ Token Interpreter :: lex()
 			}
 		}
 		if (bufferPosition != 0 && (buffer == SPACE_STRING || buffer == EMPTY_STRING || buffer == TAB_STRING)) {
-			
+
 			cout << "space/newline/tab encountered and ignored" << endl;
 			memset(buffer, 0, sizeof(buffer));
 			bufferPosition = 0;
@@ -102,13 +109,13 @@ Token Interpreter :: lex()
 		}
 
 		/*
-		 * process parsed words here
-		 */
+		* process parsed words here
+		*/
 
-		if (buffer[bufferPosition-1] == NONE) // if the current buffer array is a string
+		if (buffer[bufferPosition - 1] == NONE) // if the current buffer array is a string
 		{
 			//cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
-		
+
 			// ignore space/tab
 			if (buffer == EMPTY_TOKEN)
 			{
@@ -152,7 +159,7 @@ Token Interpreter :: lex()
 				{
 					cout << "proc block start" << endl;
 					memset(buffer, 0, sizeof(buffer));
-					bufferPosition = 0;			
+					bufferPosition = 0;
 				}
 				continue;
 			}
@@ -167,7 +174,7 @@ Token Interpreter :: lex()
 				memset(buffer, 0, sizeof(buffer));
 				bufferPosition = 0;
 				continue;
-			} 
+			}
 			// if already in an assignment
 			else {
 				// if haven't encountered = sign, and the buffer is not equal sign, error!
@@ -186,7 +193,7 @@ Token Interpreter :: lex()
 						bufferPosition = 0;
 						continue;
 					}
-				} 
+				}
 				// if '=' sign already encountered, expect new var or int or op
 				else
 				{
@@ -202,7 +209,7 @@ Token Interpreter :: lex()
 							bufferPosition = 0;
 							continue;
 
-							
+
 						}
 						if (buffer == PLUS_STRING)
 						{
@@ -211,7 +218,8 @@ Token Interpreter :: lex()
 							assignExpectOp = false;
 						}
 
-					} else
+					}
+					else
 					{
 						if (buffer == SEMI_COLON_STRING)
 						{
@@ -223,7 +231,8 @@ Token Interpreter :: lex()
 						{
 							leftFactor = buffer;
 							factorCount++;
-						} else
+						}
+						else
 						{
 							rightFactor = buffer;
 						}
@@ -233,13 +242,13 @@ Token Interpreter :: lex()
 					bufferPosition = 0;
 					continue;
 				}
-				
-				
+
+
 			}
-			
-			
-			
-			
+
+
+
+
 		}
 
 		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB) // TODO: if semi colon is seen, do not advance!!
@@ -247,12 +256,13 @@ Token Interpreter :: lex()
 			//cout << "buffer is: " << buffer << " |||| " << endl;
 			//cout << "space! tab!!!!" << endl;
 			buffer[bufferPosition] = '\0';
-			
+
 			bufferPosition++;
 			advance();
 			continue;
 
-		} else if (currentChar == SEMI_COLON)
+		}
+		else if (currentChar == SEMI_COLON)
 		{
 			cout << "curr is:" << currentChar << "|||| position is:" << position << endl;
 			if (strlen(buffer) == 0)
@@ -271,10 +281,11 @@ Token Interpreter :: lex()
 
 			continue;
 
-			
-			
+
+
 			continue;
-		} else
+		}
+		else
 		{
 			buffer[bufferPosition] = currentChar;
 			bufferPosition++;
@@ -282,26 +293,27 @@ Token Interpreter :: lex()
 			continue;
 		}
 
-		
+
 		//cout << "buffer is: "<< buffer << " |||| " <<endl;
 		//advance();
 	} // end while loop
 
 
-	for (int i = 0; i < 4; i ++)
+	for (int i = 0; i < 4; i++)
 	{
 		cout << procVerify[i] << endl;
 	}
 	return null;
 }
 
-void Interpreter :: advance()
+void Parser::advance()
 {
 	position += 1;
 	if (position > text.length() - 1)
 	{
 		currentChar = NONE;
-	} else
+	}
+	else
 	{
 		currentChar = text[position];
 	}

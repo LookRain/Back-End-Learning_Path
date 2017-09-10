@@ -28,7 +28,16 @@
     <ClInclude Include="Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interpreter.h">
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VarToken.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NumToken.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OperatorToken.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -42,7 +51,16 @@
     <ClCompile Include="Token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Interpreter.cpp">
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VarToken.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NumToken.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OperatorToken.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
