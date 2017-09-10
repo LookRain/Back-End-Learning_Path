@@ -9,7 +9,10 @@ Token :: Token(string value) :value(value)
 {
 	
 }
+Token::Token()
+{
 
+}
 string Token::getType()
 {
 	return type;

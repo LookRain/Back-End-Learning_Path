@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "Parser.h"
 #include "Token.h"
-
+#include "VarToken.h"
+#include "OperatorToken.h"
+#include "NumToken.h"
 #include <string>
 #include <vector>
 #include <iostream>
 #include <fstream>
-
+#include <stack>
+#include <queue> 
 using namespace std;
 // token types:
-const string LETTER = "LETTER";
-const string DIGIT = "DIGIT";
-const string PLUS = "PLUS";
 
 
 const string EOL = "EOL";
@@ -43,6 +43,7 @@ const char TAB = '\t';
 const char SPACE = ' ';
 const char SEMI_COLON = ';';
 const char EQUAL = '=';
+const char PLUS = '+';
 
 const string BLOCK_START = "{";
 const string BLOCK_END = "}";
@@ -83,6 +84,10 @@ Token Parser::lex()
 	string rightFactor = "";
 	string op = "";
 	int factorCount = 0;
+
+	stack<Token> operatorStack;
+	queue<Token> output;
+	queue<Token> tokens;
 
 	// 3 bool: {proc keyword found, proc name defined, starting brace found, ending brace found}
 	bool procVerify[4] = { false, false, false, false };
@@ -164,7 +169,7 @@ Token Parser::lex()
 				continue;
 			}
 
-			// if not inside an assignment, expect assignment variable
+			// if not inside an assignment, expect assignment variable, start parsing assignment
 			if (!assignVerify[0])
 			{
 				/*cout << buffer << ", pointer: " << bufferPosition << endl;*/
@@ -203,8 +208,33 @@ Token Parser::lex()
 						if (buffer == SEMI_COLON_STRING)
 						{
 							assignVerify[2] = true;
+							while (!operatorStack.empty())
+							{
+								output.push(operatorStack.top());
+								operatorStack.pop();
+							}
+
+
 							cout << "assignment of var " << currentAssignVar << " finished!" << endl;
-							cout << "final assignment is: " << leftFactor << " " << op << " " << rightFactor << endl;
+							cout << "---------- start of output queue" << endl;
+							while (!output.empty())
+							{
+								
+								cout << output.front().getValue() << endl;
+								output.pop();
+							}
+							cout << "-------------" << endl;
+
+							cout << "---------- start of op stack" << endl;
+							while (!operatorStack.empty())
+							{
+
+								cout << operatorStack.top().getValue() << endl;
+								operatorStack.pop();
+							}
+							cout << "-------------" << endl;
+
+
 							memset(buffer, 0, sizeof(buffer));
 							bufferPosition = 0;
 							continue;
@@ -215,6 +245,7 @@ Token Parser::lex()
 						{
 							cout << "operator is: " << PLUS_STRING << ". " << endl;
 							op = "PLUS";
+							operatorStack.push(OperatorToken(buffer));
 							assignExpectOp = false;
 						}
 
@@ -226,16 +257,18 @@ Token Parser::lex()
 							cout << "assignment cannot end with operator!" << endl;
 							return null;
 						}
-						cout << "exp factor is: " << buffer << ". " << endl;
-						if (factorCount == 0)
+						if (isdigit(buffer[0]))
 						{
-							leftFactor = buffer;
-							factorCount++;
+							cout << "exp factor is a number: " << buffer << ". " << endl;
+							output.push(NumToken(buffer));
 						}
-						else
+						if (isalpha(buffer[0]))
 						{
-							rightFactor = buffer;
+							cout << "exp factor is a variable: " << buffer << ". " << endl;
+							output.push(VarToken(buffer));
 						}
+						
+
 						assignExpectOp = true;
 					}
 					memset(buffer, 0, sizeof(buffer));
@@ -251,7 +284,7 @@ Token Parser::lex()
 
 		}
 
-		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB) // TODO: if semi colon is seen, do not advance!!
+		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB)
 		{
 			//cout << "buffer is: " << buffer << " |||| " << endl;
 			//cout << "space! tab!!!!" << endl;
@@ -261,6 +294,22 @@ Token Parser::lex()
 			advance();
 			continue;
 
+		}
+		else if (currentChar == PLUS) // TODO: if symbols are encountered, break buffer
+		{
+			buffer[bufferPosition] = '\0';
+
+			bufferPosition++;
+			position += 1;
+			if (position > text.length() - 1)
+			{
+				currentChar = NONE;
+			}
+			else
+			{
+				currentChar = text[position];
+			}
+			continue;
 		}
 		else if (currentChar == SEMI_COLON)
 		{
