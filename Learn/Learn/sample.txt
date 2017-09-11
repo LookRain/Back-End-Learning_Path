@@ -1,4 +1,5 @@
 procedure abc {  
 a=77   + d+4 +xye + 666+ asdfasdf+ 123 ;
 test =55+ 11 + 33;
+asdf=55+ 11 + 33;
 }

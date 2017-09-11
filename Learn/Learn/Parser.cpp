@@ -133,7 +133,7 @@ Token Parser::lex()
 
 		if (buffer[bufferPosition - 1] == NONE) // if the current buffer array is a string
 		{
-			//cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
+			cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
 
 			// ignore space/tab
 			if (buffer == EMPTY_TOKEN)
@@ -253,6 +253,7 @@ Token Parser::lex()
 							assignVerify[0] = false;
 							assignVerify[1] = false;
 							assignVerify[2] = false;
+							assignExpectOp = false;
 							memset(buffer, 0, sizeof(buffer));
 							bufferPosition = 0;
 							continue;
@@ -310,13 +311,13 @@ Token Parser::lex()
 
 		if (currentChar == SPACE)
 		{
-			cout << "space! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			//cout << "space! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
 			advance();
 			continue;
 		}
 		if (currentChar == LINE_FEED)
 		{
-			cout << "linefeed! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			//cout << "linefeed! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
 			advance();
 			continue;
 		}
@@ -328,7 +329,7 @@ Token Parser::lex()
 				cout << "illegal symbol" << endl;
 				break;
 			} 
-			cout << "symbol! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			//cout << "symbol! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
 			buffer[bufferPosition] = currentChar;
 			bufferPosition++;
 
@@ -341,7 +342,7 @@ Token Parser::lex()
 		
 		if (text[position + 1] == SPACE)
 		{
-			cout << "next char is space! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			//cout << "next char is space! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
 
 			buffer[bufferPosition] = currentChar;
 			bufferPosition++;
@@ -366,7 +367,7 @@ Token Parser::lex()
 		
 		if (isalnum(currentChar))
 		{
-			cout << "buffer is: " << buffer << " |||| position is " << position << endl;
+			//cout << "buffer is: " << buffer << " |||| position is " << position << endl;
 			buffer[bufferPosition] = currentChar;
 			bufferPosition++;
 			advance();
