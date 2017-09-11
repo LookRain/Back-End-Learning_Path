@@ -49,6 +49,20 @@ const string BLOCK_START = "{";
 const string BLOCK_END = "}";
 //const string PLUS, MINUS, MULTIPLY, DIVIDE, EQUAL = "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQUAL";
 
+bool isLegalSymbol(char symbol)
+{
+	return (symbol == '{' || symbol == '}' || symbol == ';' || symbol == '+' || symbol == '=');
+}
+bool isIllegalSymbol(char symbol)
+{
+	return false;
+}
+void clearQueue(queue<Token> &q)
+{
+	queue<Token> empty;
+	swap(q, empty);
+}
+
 
 Parser::Parser(string filename) : filename(filename), currentToken(EMPTY_TOKEN)
 {
@@ -107,7 +121,7 @@ Token Parser::lex()
 		}
 		if (bufferPosition != 0 && (buffer == SPACE_STRING || buffer == EMPTY_STRING || buffer == TAB_STRING)) {
 
-			cout << "space/newline/tab encountered and ignored" << endl;
+			//cout << "space/newline/tab encountered and ignored" << endl;
 			memset(buffer, 0, sizeof(buffer));
 			bufferPosition = 0;
 			continue;
@@ -223,6 +237,7 @@ Token Parser::lex()
 								cout << output.front().getValue() << endl;
 								output.pop();
 							}
+							clearQueue(output);
 							cout << "-------------" << endl;
 
 							cout << "---------- start of op stack" << endl;
@@ -234,7 +249,10 @@ Token Parser::lex()
 							}
 							cout << "-------------" << endl;
 
-
+							currentAssignVar = "";
+							assignVerify[0] = false;
+							assignVerify[1] = false;
+							assignVerify[2] = false;
 							memset(buffer, 0, sizeof(buffer));
 							bufferPosition = 0;
 							continue;
@@ -284,66 +302,78 @@ Token Parser::lex()
 
 		}
 
-		if (currentChar == SPACE || currentChar == LINE_FEED || currentChar == TAB)
+		if (isIllegalSymbol(currentChar))
 		{
-			//cout << "buffer is: " << buffer << " |||| " << endl;
-			//cout << "space! tab!!!!" << endl;
-			buffer[bufferPosition] = '\0';
+			cout << "illegal symbol" << endl;
+			break;
+		}
 
+		if (currentChar == SPACE)
+		{
+			cout << "space! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			advance();
+			continue;
+		}
+		if (currentChar == LINE_FEED)
+		{
+			cout << "linefeed! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			advance();
+			continue;
+		}
+
+		if (isLegalSymbol(currentChar))
+		{
+			if (isIllegalSymbol(text[position + 1]))
+			{
+				cout << "illegal symbol" << endl;
+				break;
+			} 
+			cout << "symbol! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			buffer[bufferPosition] = currentChar;
+			bufferPosition++;
+
+			buffer[bufferPosition] = '\0';
 			bufferPosition++;
 			advance();
 			continue;
-
 		}
-		//else if (currentChar == PLUS) // TODO: if symbols are encountered, break buffer
-		//{
-		//	buffer[bufferPosition] = '\0';
 
-		//	bufferPosition++;
-		//	position += 1;
-		//	if (position > text.length() - 1)
-		//	{
-		//		currentChar = NONE;
-		//	}
-		//	else
-		//	{
-		//		currentChar = text[position];
-		//	}
-		//	continue;
-		//}
-		else if (currentChar == SEMI_COLON)
+		
+		if (text[position + 1] == SPACE)
 		{
-			cout << "curr is:" << currentChar << "|||| position is:" << position << endl;
-			if (strlen(buffer) == 0)
-			{
-				cout << "buffer empty" << endl;
-				buffer[bufferPosition] = currentChar;
-				bufferPosition++;
-				advance();
-				continue;
-			}
+			cout << "next char is space! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+
+			buffer[bufferPosition] = currentChar;
+			bufferPosition++;
 
 			buffer[bufferPosition] = '\0';
-
 			bufferPosition++;
-			//advance();
 
-			continue;
-
-
-
+			advance();
 			continue;
 		}
-		else
+		if (isLegalSymbol(text[position + 1]))
 		{
+			buffer[bufferPosition] = currentChar;
+			bufferPosition++;
+
+			buffer[bufferPosition] = '\0';
+			bufferPosition++;
+
+			advance();
+			continue;
+		}
+		
+		if (isalnum(currentChar))
+		{
+			cout << "buffer is: " << buffer << " |||| position is " << position << endl;
 			buffer[bufferPosition] = currentChar;
 			bufferPosition++;
 			advance();
 			continue;
 		}
 
-
-		//cout << "buffer is: "<< buffer << " |||| " <<endl;
+		
 		//advance();
 	} // end while loop
 
@@ -367,3 +397,4 @@ void Parser::advance()
 		currentChar = text[position];
 	}
 }
+
