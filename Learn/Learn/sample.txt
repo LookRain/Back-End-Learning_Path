@@ -1,4 +1,4 @@
 procedure abc {  
-a = 77+ d + 4 + xye + 666 + asdfasdf + 123;
+a = 77 + d + 4 + xye + 666 + asdfasdf + 123;
 b = a + b + 33;
 }

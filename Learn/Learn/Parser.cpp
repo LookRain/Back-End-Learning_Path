@@ -295,22 +295,22 @@ Token Parser::lex()
 			continue;
 
 		}
-		else if (currentChar == PLUS) // TODO: if symbols are encountered, break buffer
-		{
-			buffer[bufferPosition] = '\0';
+		//else if (currentChar == PLUS) // TODO: if symbols are encountered, break buffer
+		//{
+		//	buffer[bufferPosition] = '\0';
 
-			bufferPosition++;
-			position += 1;
-			if (position > text.length() - 1)
-			{
-				currentChar = NONE;
-			}
-			else
-			{
-				currentChar = text[position];
-			}
-			continue;
-		}
+		//	bufferPosition++;
+		//	position += 1;
+		//	if (position > text.length() - 1)
+		//	{
+		//		currentChar = NONE;
+		//	}
+		//	else
+		//	{
+		//		currentChar = text[position];
+		//	}
+		//	continue;
+		//}
 		else if (currentChar == SEMI_COLON)
 		{
 			cout << "curr is:" << currentChar << "|||| position is:" << position << endl;
