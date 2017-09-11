@@ -55,6 +55,30 @@ bool isLegalSymbol(char symbol)
 }
 bool isIllegalSymbol(char symbol)
 {
+	if (!isalnum(symbol) && !isLegalSymbol(symbol) && symbol != SPACE && symbol != LINE_FEED && symbol != TAB)
+	{
+		
+			cout << "illegal symbol is /" << symbol << endl;
+			return true;
+		
+	}
+	return false;
+	
+}
+bool isLegalName(string name)
+{
+	if (!isalpha(name[0]))
+	{
+		return false;
+	}
+	return true;
+}
+bool iskeyword(string word)
+{
+	if (word == "while")
+	{
+		return true;
+	}
 	return false;
 }
 void clearQueue(queue<Token> &q)
@@ -133,7 +157,7 @@ Token Parser::lex()
 
 		if (buffer[bufferPosition - 1] == NONE) // if the current buffer array is a string
 		{
-			cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
+			//cout << "start of buffer: //" << buffer << "// end of buffer" << endl;
 
 			// ignore space/tab
 			if (buffer == EMPTY_TOKEN)
@@ -144,7 +168,9 @@ Token Parser::lex()
 				continue;
 			}
 			// keyword identification
-			// case 1: procedure
+			// case 1: sees procedure keyword, check if already inside procedure definition:
+			//		   if true: error
+			//		   if false: set flag for procedure keyword to true
 			if (buffer == PROCEDURE)
 			{
 				// if alreaday expecting proc name
@@ -161,9 +187,18 @@ Token Parser::lex()
 				continue;
 			}
 
-			// case 2: expecting proc name
+			// case 2: already seen proc keyword, expecting proc name
 			if (procVerify[0] && !procVerify[1])
 			{
+				// check if proc name is legal
+				if (!isLegalName(buffer))
+				{
+					cout << "*********" << endl
+						<< "illegal pro name" << endl;
+					return null;
+				}
+				// set flag for seeing proc name to true
+				// print proc name
 				currentProcName = buffer;
 				procVerify[1] = true;
 				cout << "proc name is " << currentProcName << endl;
@@ -171,132 +206,166 @@ Token Parser::lex()
 				bufferPosition = 0;
 				continue;
 			}
-
-			if (buffer == BLOCK_START)
+			// case 3: already seen proc keyword and name, expecting proc start {
+			if (procVerify[0] && procVerify[1] && !procVerify[2])
 			{
-				if (procVerify[0] && procVerify[1])
+				if (buffer == BLOCK_START)
 				{
-					cout << "proc block start" << endl;
-					memset(buffer, 0, sizeof(buffer));
-					bufferPosition = 0;
-				}
-				continue;
-			}
-
-			// if not inside an assignment, expect assignment variable, start parsing assignment
-			if (!assignVerify[0])
-			{
-				/*cout << buffer << ", pointer: " << bufferPosition << endl;*/
-				currentAssignVar = buffer;
-				cout << "assignment variable is " << currentAssignVar << endl;
-				assignVerify[0] = true;
-				memset(buffer, 0, sizeof(buffer));
-				bufferPosition = 0;
-				continue;
-			}
-			// if already in an assignment
-			else {
-				// if haven't encountered = sign, and the buffer is not equal sign, error!
-				if (!assignVerify[1])
-				{
-					if (buffer != EQUAL_STRING)
+					if (procVerify[0] && procVerify[1])
 					{
-						cout << "Assignmetn statement variable must be followed by = but encountered " << buffer << endl;
+						cout << "proc block start" << endl;
+						procVerify[2] = true;
+						memset(buffer, 0, sizeof(buffer));
+						bufferPosition = 0;
+					}
+					continue;
+				} else
+				{
+					cout << "*********" << endl
+						<< "proc definition needs a block start { symbol" << endl;
+					return null;
+				}
+			}
+			// case 3: already seen proc keyword, name and proc start {, expecting statement list
+			if (procVerify[0] && procVerify[1] && procVerify[2] && !procVerify[3])
+			{
+				// if the assignment is started but not finished, disallow any symbol other than + and ;
+				if (assignVerify[0] && !assignVerify[2])
+				{
+					if (isLegalSymbol(buffer[0]) && buffer != SEMI_COLON_STRING && buffer != EQUAL_STRING && buffer != PLUS_STRING)
+					{
+						cout << "bad symbol inside procedure" << endl;
 						return null;
 					}
+				}
+				
+
+				// if not inside an assignment, expect assignment variable, start parsing assignment
+				if (!assignVerify[0])
+				{
+					
+					if (!iskeyword(buffer) && !isLegalName(buffer))
+					{
+						cout << "expect assignment or statements, but met " << buffer << endl;
+						return null;
+					}
+					/*cout << buffer << ", pointer: " << bufferPosition << endl;*/
+					currentAssignVar = buffer;
+					cout << "assignment variable is " << currentAssignVar << endl;
+					assignVerify[0] = true;
+					memset(buffer, 0, sizeof(buffer));
+					bufferPosition = 0;
+					continue;
+				}
+				// if already in an assignment
+				else
+				{
+					// if haven't encountered = sign, and the buffer is not equal sign, error!
+					if (!assignVerify[1])
+					{
+						if (buffer != EQUAL_STRING)
+						{
+							cout << "Assignmetn statement variable must be followed by = but encountered " << buffer << endl;
+							return null;
+						}
+						else
+						{
+							cout << "assignment symbol encountered" << endl;
+							assignVerify[1] = true;
+							memset(buffer, 0, sizeof(buffer));
+							bufferPosition = 0;
+							continue;
+						}
+					}
+					// if '=' sign already encountered, expect new var or int or op
 					else
 					{
-						cout << "assignment symbol encountered" << endl;
-						assignVerify[1] = true;
+						//cout << "exp factor is: " << buffer << ". " << endl;
+						if (assignExpectOp)
+						{
+							if (buffer == SEMI_COLON_STRING)
+							{
+								assignVerify[2] = true;
+								while (!operatorStack.empty())
+								{
+									output.push(operatorStack.top());
+									operatorStack.pop();
+								}
+
+
+								cout << "assignment of var " << currentAssignVar << " finished!" << endl;
+								cout << "---------- start of output queue" << endl;
+								while (!output.empty())
+								{
+
+									cout << output.front().getValue() << ", ";
+									output.pop();
+								}
+								cout << '\n';
+								clearQueue(output);
+								cout << "-------------" << endl;
+
+								/*cout << "---------- start of op stack" << endl;
+								while (!operatorStack.empty())
+								{
+
+								cout << operatorStack.top().getValue() << ", ";
+								operatorStack.pop();
+								}
+								cout << "-------------" << endl;*/
+
+								// reset all variables used here
+								currentAssignVar = "";
+								assignVerify[0] = false;
+								assignVerify[1] = false;
+								assignVerify[2] = false;
+								assignExpectOp = false;
+								memset(buffer, 0, sizeof(buffer));
+								bufferPosition = 0;
+								continue;
+
+
+							}
+							if (buffer == PLUS_STRING)
+							{
+								//cout << "operator is: " << PLUS_STRING << ". " << endl;
+								op = "PLUS";
+								operatorStack.push(OperatorToken(buffer));
+								assignExpectOp = false;
+							}
+
+						}
+						else
+						{
+							if (buffer == SEMI_COLON_STRING)
+							{
+								cout << "bad assignment ending!" << endl;
+								return null;
+							}
+							if (isdigit(buffer[0]))
+							{
+								//cout << "exp factor is a number: " << buffer << ". " << endl;
+								output.push(NumToken(buffer));
+							}
+							if (isalpha(buffer[0]))
+							{
+								//cout << "exp factor is a variable: " << buffer << ". " << endl;
+								output.push(VarToken(buffer));
+							}
+
+
+							assignExpectOp = true;
+						}
 						memset(buffer, 0, sizeof(buffer));
 						bufferPosition = 0;
 						continue;
 					}
 				}
-				// if '=' sign already encountered, expect new var or int or op
-				else
-				{
-					//cout << "exp factor is: " << buffer << ". " << endl;
-					if (assignExpectOp)
-					{
-						if (buffer == SEMI_COLON_STRING)
-						{
-							assignVerify[2] = true;
-							while (!operatorStack.empty())
-							{
-								output.push(operatorStack.top());
-								operatorStack.pop();
-							}
-
-
-							cout << "assignment of var " << currentAssignVar << " finished!" << endl;
-							cout << "---------- start of output queue" << endl;
-							while (!output.empty())
-							{
-								
-								cout << output.front().getValue() << endl;
-								output.pop();
-							}
-							clearQueue(output);
-							cout << "-------------" << endl;
-
-							cout << "---------- start of op stack" << endl;
-							while (!operatorStack.empty())
-							{
-
-								cout << operatorStack.top().getValue() << endl;
-								operatorStack.pop();
-							}
-							cout << "-------------" << endl;
-
-							currentAssignVar = "";
-							assignVerify[0] = false;
-							assignVerify[1] = false;
-							assignVerify[2] = false;
-							assignExpectOp = false;
-							memset(buffer, 0, sizeof(buffer));
-							bufferPosition = 0;
-							continue;
-
-
-						}
-						if (buffer == PLUS_STRING)
-						{
-							cout << "operator is: " << PLUS_STRING << ". " << endl;
-							op = "PLUS";
-							operatorStack.push(OperatorToken(buffer));
-							assignExpectOp = false;
-						}
-
-					}
-					else
-					{
-						if (buffer == SEMI_COLON_STRING)
-						{
-							cout << "assignment cannot end with operator!" << endl;
-							return null;
-						}
-						if (isdigit(buffer[0]))
-						{
-							cout << "exp factor is a number: " << buffer << ". " << endl;
-							output.push(NumToken(buffer));
-						}
-						if (isalpha(buffer[0]))
-						{
-							cout << "exp factor is a variable: " << buffer << ". " << endl;
-							output.push(VarToken(buffer));
-						}
-						
-
-						assignExpectOp = true;
-					}
-					memset(buffer, 0, sizeof(buffer));
-					bufferPosition = 0;
-					continue;
-				}
-
-
 			}
+
+			
+
+			
 
 
 
@@ -305,8 +374,8 @@ Token Parser::lex()
 
 		if (isIllegalSymbol(currentChar))
 		{
-			cout << "illegal symbol" << endl;
-			break;
+			cout << "illegal symbol " << currentChar << endl;
+			return null;
 		}
 
 		if (currentChar == SPACE)
@@ -316,6 +385,12 @@ Token Parser::lex()
 			continue;
 		}
 		if (currentChar == LINE_FEED)
+		{
+			//cout << "linefeed! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
+			advance();
+			continue;
+		}
+		if (currentChar == TAB)
 		{
 			//cout << "linefeed! buffer is: " << buffer << " |||| position is " << position << "char is: " << currentChar << endl;
 			advance();
