@@ -53,7 +53,7 @@ int main()
 	//cout << endl << isdigit(testStr[5]);
 
 	Parser itp = Parser("sample.txt");
-	itp.lex();
+	itp.parse();
 
 	
 	return 0;

@@ -1,5 +1,10 @@
-procedure abc{  
-	a=77   + d+4 +xye + 666+ asdfasdf+ 123 ;
-test =55+ 11 + 33;
-asdf=55+ 11 + 33;
+procedure a123{  
+a=11+x+y+666;
+b = 22 + asdf+999+aaaaaaa;
+while a {
+    c = 44;
+	while d {
+	e = 77l;
+}
+}
 }
